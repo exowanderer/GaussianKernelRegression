@@ -1,5 +1,33 @@
 from scipy.spatial      import cKDTree
 
+def decorrelate_gk_transit(times, phots, params, gk, nbr_ind):
+    '''
+        form gaussian weighting fuction to decorelate photometry using a gaussian kernel `gk`
+    '''
+    nbr_ind = np.array(nbr_ind, int).copy()
+    tmodel  = transit_model_wrap(times, params)
+    return np.sum((phots / tmodel)[nbr_ind]*gk,axis=1)
+
+def decorrelate_gk_eclipse(times, phots, params, gk, nbr_ind):
+    '''
+        form gaussian weighting fuction to decorelate photometry using a gaussian kernel `gk`
+    '''
+    raise Exception("\n\n *** NEED TO UPDATE `decorrelate_gk_eclipse` *** \n\n")
+    nbr_ind = np.array(nbr_ind, int).copy()
+    # emodel  = NETransit.eclipse_model(times, params)
+    return np.sum((phots / emodel)[nbr_ind]*gk,axis=1)
+
+def decorrelate_gk_functionless(phots, gk, nbr_ind):
+    '''
+        form gaussian weighting fuction to decorelate photometry using a gaussian kernel `gk`
+    '''
+    nbr_ind = np.array(nbr_ind, int).copy()
+    return np.sum(phots[nbr_ind]*gk,axis=1)
+
+def gk_weighting_wrapper(gk_params):
+    times, flux, gk, nbr = gk_params
+    return lambda transit_params: decorrelate_gk(times, flux, transit_params, gk, nbr)
+
 def find_nbr_qhull(xpos, ypos, npix, sm_num = 100, a = 1.0, b = 1.0, c = 1.0, print_space = 10000.):
     '''
         Python Implimentation of N. Lewis method, described in Lewis etal 2012, Knutson etal 2012
