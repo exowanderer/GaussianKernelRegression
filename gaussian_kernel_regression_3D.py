@@ -1,3 +1,5 @@
+from scipy.spatial      import cKDTree
+
 def find_nbr_qhull(xpos, ypos, npix, sm_num = 100, a = 1.0, b = 1.0, c = 1.0, print_space = 10000.):
     '''
         Python Implimentation of N. Lewis method, described in Lewis etal 2012, Knutson etal 2012
