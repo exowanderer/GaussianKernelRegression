@@ -28,9 +28,9 @@ def find_nbr_qhull(xpos, ypos, npix, sm_num = 100, a = 1.0, b = 1.0, c = 1.0, pr
         np0 = (npix - np.median(npix))/c
     else:
         if np.sum(npix) == 0.0:
-            print 'SKIPPING Noise Pixel Sections of Gaussian Kernel because Noise Pixels are Zero'
+            print('SKIPPING Noise Pixel Sections of Gaussian Kernel because Noise Pixels are Zero')
         if c == 0:
-            print 'SKIPPING Noise Pixel Sections of Gaussian Kernel because c == 0'
+            print('SKIPPING Noise Pixel Sections of Gaussian Kernel because c == 0')
 
     k            = sm_num                           # This is the number of nearest neighbors you want
     n            = x0.size                          # This is the number of data points you have
@@ -71,7 +71,7 @@ def find_nbr_qhull(xpos, ypos, npix, sm_num = 100, a = 1.0, b = 1.0, c = 1.0, pr
         gw[:,point] = gw_temp/gw_sum
 
         if (gw_sum == 0.0) or ~np.isfinite(gw_sum):
-            raise Exception, '(gw_sum == 0.0) or ~isfinite(gw_temp))'
+            raise Exception('(gw_sum == 0.0) or ~isfinite(gw_temp))')
 
         nearest[:,point]  = ind
 
@@ -148,6 +148,6 @@ def GaussianKernel_KDtree(statevectors, knobs = None, sm_num = 100, expansion = 
         gaussian_kernel[:,point] = gk_temp/gk_sum
 
         if (gk_sum == 0.0) or ~np.isfinite(gk_sum):
-            raise Exception, '(gw_sum == 0.0) or ~isfinite(gw_temp))'
+            raise Exception('(gw_sum == 0.0) or ~isfinite(gw_temp))')
 
     return gaussian_kernel.transpose(), nearest.transpose() # nearest  == nbr_ind.transpose()
