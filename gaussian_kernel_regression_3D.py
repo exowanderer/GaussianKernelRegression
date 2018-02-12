@@ -1,4 +1,5 @@
-from scipy.spatial      import cKDTree
+# from scipy.spatial      import cKDTree
+from sklearn.neighbors import NearestNeighbors
 
 def decorrelate_gk_transit(times, phots, params, gk, nbr_ind):
     '''
@@ -46,11 +47,11 @@ def find_nbr_qhull(xpos, ypos, npix, sm_num = 100, a = 1.0, b = 1.0, c = 1.0, pr
 
         J. Fraine    first edition, direct translation from IDL 12.05.12
     '''
-    from scipy import spatial
+    neigh = NearestNeighbors(n_neighbors=sm_num+1) # need 1 more to exclude the test point itself
     #The surface fitting performs better if the data is scattered about zero
-
+    
     npix    = np.sqrt(npix)
-
+    
     x0  = (xpos - np.median(xpos))/a
     y0  = (ypos - np.median(ypos))/b
 
@@ -61,30 +62,33 @@ def find_nbr_qhull(xpos, ypos, npix, sm_num = 100, a = 1.0, b = 1.0, c = 1.0, pr
             print('SKIPPING Noise Pixel Sections of Gaussian Kernel because Noise Pixels are Zero')
         if c == 0:
             print('SKIPPING Noise Pixel Sections of Gaussian Kernel because c == 0')
-
+    
     k            = sm_num                           # This is the number of nearest neighbors you want
     n            = x0.size                          # This is the number of data points you have
     nearest      = np.zeros((k,n),dtype=np.int64)   # This stores the nearest neighbors for each data point
-
+    
     #Multiplying by 1000.0 avoids precision problems
     if npix.sum() != 0.0 and c != 0:
-        kdtree  = cKDTree(np.transpose((y0*1000., x0*1000., np0*1000.)))
+        # kdtree  = cKDTree(np.transpose((y0*1000., x0*1000., np0*1000.)))
+        neigh.fit(np.array((y0*1000., x0*1000., np0*1000.)))
     else:
-        kdtree  = cKDTree(np.transpose((y0*1000., x0*1000.)))
-
+        # kdtree  = cKDTree(np.transpose((y0*1000., x0*1000.)))
+        neigh.fit(np.array((y0*1000., x0*1000.)))
+    
     gw  = np.zeros((k,n),dtype=np.float64) # This is the gaussian weight for each data point determined from the nearest neighbors
-
+    
     start   = time.time()
     for point in range(n):
         if np.round(point/print_space) == point/print_space: print_timer(point, n, start)
-
-        ind         = kdtree.query(kdtree.data[point],sm_num+1)[1][1:]
+        
+        # ind         = kdtree.query(kdtree.data[point],sm_num+1)[1][1:]
+        ind         = neigh.kneighbors(points[point:point+1])[1].flatten()[1:]
         dx          = x0[ind] - x0[point]
         dy          = y0[ind] - y0[point]
-
+        
         if npix.sum() != 0.0 and c != 0:
             dnp         = np0[ind] - np0[point]
-
+        
         sigx        = np.std(dx )
         sigy        = np.std(dy )
         if npix.sum() != 0.0 and c != 0:
@@ -96,15 +100,15 @@ def find_nbr_qhull(xpos, ypos, npix, sm_num = 100, a = 1.0, b = 1.0, c = 1.0, pr
         else:
             gw_temp     = np.exp(-dx**2./(2.0*sigx**2.)) * \
                           np.exp(-dy**2./(2.*sigy**2.))
-
+        
         gw_sum      = gw_temp.sum()
         gw[:,point] = gw_temp/gw_sum
-
+        
         if (gw_sum == 0.0) or ~np.isfinite(gw_sum):
             raise Exception('(gw_sum == 0.0) or ~isfinite(gw_temp))')
-
+        
         nearest[:,point]  = ind
-
+    
     return gw.transpose(), nearest.transpose() # nearest  == nbr_ind.transpose()
 
 def GaussianKernel_KDtree(statevectors, knobs = None, sm_num = 100, expansion = 1e3, print_space = 1):
@@ -139,45 +143,45 @@ def GaussianKernel_KDtree(statevectors, knobs = None, sm_num = 100, expansion = 
 
         The surface fitting performs better if the data is scattered about zero
     '''
-
+    
     nStates = statevectors.shape[0] # This is the number of state vectors you have
     nPts    = statevectors.shape[1] # This is the number of data points you have
-
+    
     if knobs == None:
         knobs = np.ones(nStates)
-
+    
     NormedStateVectors = np.zeros(statevectors.shape)
-
+    
     #expansion = 1e3
     for s in range(nStates):
         NormedStateVectors[s] = (statevectors[s] - np.median(statevectors[s])) / knobs[s]
-
+    
     nearest = np.zeros((sm_num,nPts),dtype=np.int64)   # This stores the nearest neighbors for each data point
-    kdtree  = cKDTree(NormedStateVectors.T*expansion)
-
+    # kdtree  = cKDTree(NormedStateVectors.T*expansion)
+    neigh = NearestNeighbors(n_neighbors=sm_num+1) # need 1 more to exclude the test point itself
+    neigh.fit(NormedStateVectors*expansion)
+    
     gaussian_kernel  = np.zeros((sm_num,nPts),dtype=np.float64) # This is the gaussian weight for each data point determined from the nearest neighbors
-
+    
     start   = time.time()
-    for point in range(nPts):
-        if not point%print_space:
-            print_timer(point, nPts, start)
-        nearest[:,point] = kdtree.query(kdtree.data[point],sm_num+1)[1][1:]
-
+    for point in tqdm(range(nPts), total=nPts):
+        # nearest[:,point] = kdtree.query(kdtree.data[point],sm_num+1)[1][1:]
+        nearest     = neigh.kneighbors(NormedStateVectors[k])[1].flatten()[1:]
         dstates     = np.zeros((nStates, sm_num))
         sigstates   = np.zeros((nStates, sm_num))
         for state in range(nStates):
             dstates[state]      = statevectors[state][nearest[:,point]] - statevectors[state][point]
             sigstates[state]    = np.std(dstates[state])
-
+        
         gk_temp = np.zeros(sm_num)
         for state in range(nStates):
             gk_temp += -0.5*(dstates[state]/sigstates[state])**2.0
-
+        
         gk_temp     = np.exp(gk_temp)
         gk_sum      = gk_temp.sum()
         gaussian_kernel[:,point] = gk_temp/gk_sum
-
+        
         if (gk_sum == 0.0) or ~np.isfinite(gk_sum):
             raise Exception('(gw_sum == 0.0) or ~isfinite(gw_temp))')
-
+    
     return gaussian_kernel.transpose(), nearest.transpose() # nearest  == nbr_ind.transpose()
