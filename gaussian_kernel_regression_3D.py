@@ -76,6 +76,8 @@ def find_nbr_qhull(xpos, ypos, npix, sm_num = 100, a = 1.0, b = 1.0, c = 1.0, pr
         # kdtree  = cKDTree(np.transpose((y0*1000., x0*1000.)))
         neigh.fit(np.transpose((y0*1000., x0*1000.)))
     
+    inds= neigh.kneighbors(return_distance=False)
+    
     gw  = np.zeros((k,n),dtype=np.float64) # This is the gaussian weight for each data point determined from the nearest neighbors
     
     start   = time.time()
@@ -83,7 +85,8 @@ def find_nbr_qhull(xpos, ypos, npix, sm_num = 100, a = 1.0, b = 1.0, c = 1.0, pr
         # if np.round(point/print_space) == point/print_space: print_timer(point, n, start)
         
         # ind         = kdtree.query(kdtree.data[point],sm_num+1)[1][1:]
-        ind         = neigh.kneighbors(points[point:point+1])[1].flatten()[1:]
+        ind         = inds[point]#neigh.kneighbors(points[point:point+1])[1].flatten()[1:]
+        
         dx          = x0[ind] - x0[point]
         dy          = y0[ind] - y0[point]
         
