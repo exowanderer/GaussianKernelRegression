@@ -71,10 +71,10 @@ def find_nbr_qhull(xpos, ypos, npix, sm_num = 100, a = 1.0, b = 1.0, c = 1.0, pr
     #Multiplying by 1000.0 avoids precision problems
     if npix.sum() != 0.0 and c != 0:
         # kdtree  = cKDTree(np.transpose((y0*1000., x0*1000., np0*1000.)))
-        neigh.fit(np.array((y0*1000., x0*1000., np0*1000.)))
+        neigh.fit(np.transpose((y0*1000., x0*1000., np0*1000.)))
     else:
         # kdtree  = cKDTree(np.transpose((y0*1000., x0*1000.)))
-        neigh.fit(np.array((y0*1000., x0*1000.)))
+        neigh.fit(np.transpose((y0*1000., x0*1000.)))
     
     gw  = np.zeros((k,n),dtype=np.float64) # This is the gaussian weight for each data point determined from the nearest neighbors
     
@@ -160,7 +160,7 @@ def GaussianKernel_KDtree(statevectors, knobs = None, sm_num = 100, expansion = 
     nearest = np.zeros((sm_num,nPts),dtype=np.int64)   # This stores the nearest neighbors for each data point
     # kdtree  = cKDTree(NormedStateVectors.T*expansion)
     neigh = NearestNeighbors(n_neighbors=sm_num) # need 1 more to exclude the test point itself
-    neigh.fit(NormedStateVectors*expansion)
+    neigh.fit(NormedStateVectors.T*expansion)
     
     gaussian_kernel  = np.zeros((sm_num,nPts),dtype=np.float64) # This is the gaussian weight for each data point determined from the nearest neighbors
     
