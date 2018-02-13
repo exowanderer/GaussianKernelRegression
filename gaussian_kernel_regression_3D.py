@@ -47,14 +47,14 @@ def find_nbr_qhull(xpos, ypos, npix, sm_num = 100, a = 1.0, b = 1.0, c = 1.0, pr
 
         J. Fraine    first edition, direct translation from IDL 12.05.12
     '''
-    neigh = NearestNeighbors(n_neighbors=sm_num+1) # need 1 more to exclude the test point itself
+    neigh = NearestNeighbors(n_neighbors=sm_num) # need 1 more to exclude the test point itself
     #The surface fitting performs better if the data is scattered about zero
     
     npix    = np.sqrt(npix)
     
     x0  = (xpos - np.median(xpos))/a
     y0  = (ypos - np.median(ypos))/b
-
+    
     if np.sum(npix) != 0.0 and c != 0:
         np0 = (npix - np.median(npix))/c
     else:
@@ -158,7 +158,7 @@ def GaussianKernel_KDtree(statevectors, knobs = None, sm_num = 100, expansion = 
     
     nearest = np.zeros((sm_num,nPts),dtype=np.int64)   # This stores the nearest neighbors for each data point
     # kdtree  = cKDTree(NormedStateVectors.T*expansion)
-    neigh = NearestNeighbors(n_neighbors=sm_num+1) # need 1 more to exclude the test point itself
+    neigh = NearestNeighbors(n_neighbors=sm_num) # need 1 more to exclude the test point itself
     neigh.fit(NormedStateVectors*expansion)
     
     gaussian_kernel  = np.zeros((sm_num,nPts),dtype=np.float64) # This is the gaussian weight for each data point determined from the nearest neighbors
