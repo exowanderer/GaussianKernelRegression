@@ -1,5 +1,6 @@
 # from scipy.spatial      import cKDTree
 from sklearn.neighbors import NearestNeighbors
+from tqdm import tqdm
 
 def decorrelate_gk_transit(times, phots, params, gk, nbr_ind):
     '''
@@ -78,8 +79,8 @@ def find_nbr_qhull(xpos, ypos, npix, sm_num = 100, a = 1.0, b = 1.0, c = 1.0, pr
     gw  = np.zeros((k,n),dtype=np.float64) # This is the gaussian weight for each data point determined from the nearest neighbors
     
     start   = time.time()
-    for point in range(n):
-        if np.round(point/print_space) == point/print_space: print_timer(point, n, start)
+    for point in tqdm(range(n), total=n):
+        # if np.round(point/print_space) == point/print_space: print_timer(point, n, start)
         
         # ind         = kdtree.query(kdtree.data[point],sm_num+1)[1][1:]
         ind         = neigh.kneighbors(points[point:point+1])[1].flatten()[1:]
