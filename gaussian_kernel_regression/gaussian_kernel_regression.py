@@ -140,7 +140,7 @@ def gaussian_kernel_regression(residuals, gaussian_weights, indices):
         -------
         prediction (1Darray) Gaussian kernel regression prediction for the value of the source over time
     '''
-    return np.sum(residuals[ind_kdtree] * gaussian_weights, axis=1)
+    return np.sum(residuals[indices] * gaussian_weights, axis=1)
 
 if __name__ == '__main__':
     import numpy as np
