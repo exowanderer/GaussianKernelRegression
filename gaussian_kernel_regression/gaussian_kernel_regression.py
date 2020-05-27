@@ -29,11 +29,11 @@ def find_qhull_one_point(point, x0, y0, np0, inds):
     if np0.sum() != 0.0:
         dnp = np0[inds[point]] - np0[point]
     
-    sigx = std(dx)
-    sigy = std(dy)
+    sigx = np.std(dx)
+    sigy = np.std(dy)
     
     if dnp.sum() != 0.0:
-        signp = std(dnp)
+        signp = np.std(dnp)
         exponent = -dx**2./(2.0*sigx**2.) + -dy**2./(2.*sigy**2.) + -dnp**2./(2.*signp**2.)
     else:
         exponent = -dx**2./(2.0*sigx**2.) + -dy**2./(2.*sigy**2.)
