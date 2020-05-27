@@ -50,7 +50,10 @@ ind_kdtree  = kdtree.query(kdtree.data, n_nbr+1)[1][:,1:] # skip the first one b
 # Produce GKR weights over time
 # `gaussian_kernel_regression` (i.e. `gkr`) only returns the gaussian weights in the indices are provided
 gw_kdtree   = gkr.gaussian_weights(xpos, ypos, npix, ind_kdtree)
-gkr_kdtree  = sum(flux[ind_kdtree] * gw_kdtree, axis=1)
+    
+# `gaussian_kernel_regression` computes the prediction for the GKR over the flux
+gkr_kdtree = gkr.gaussian_kernel_regression(flux, gw_kdtree, ind_kdtree)
+
 ```
 
 ### Plot the solution
