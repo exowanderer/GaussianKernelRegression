@@ -125,6 +125,23 @@ def gaussian_weights(xpos, ypos, npix = None, inds = None, n_nbr = 50, returnInd
     else:
         return np.array(gw_list)
 
+def gaussian_kernel_regression(residuals, gaussian_weights, indices):
+    ''' Compute the GKR `flux` values over time
+        
+        This produces the comparison to the actual flux data, to be used iterative with a least-sq or MCMC solver
+        
+        Paramaeters
+        -----------
+        residuals (1Darray): residual source value over time (to be GKR regressed)
+        gaussian_weights (1Darray): set of Gaussian weights per source point to compare with neighbor
+        indices (1dArray): KDTree list of lists for nearby indicies per source
+        
+        Returns
+        -------
+        prediction (1Darray) Gaussian kernel regression prediction for the value of the source over time
+    '''
+    return np.sum(flux[ind_kdtree] * gaussian_weights, axis=1)
+
 if __name__ == '__main__':
     import numpy as np
     import matplotlib.pyplot as plt
@@ -142,9 +159,11 @@ if __name__ == '__main__':
     
     ind_kdtree = kdtree.query(kdtree.data, n_nbr + 1)[1][:, 1:] # skip the first one because it's the current point
     
-    # `gaussian_weights_and_nearest_neighbors` only returns the gaussian weights in the indices are provided
-    gw_kdtree = gaussian_weights_and_nearest_neighbors(xpos, ypos, npix, ind_kdtree)
-    gkr_kdtree = np.sum(flux[ind_kdtree] * gw_kdtree, axis=1)
+    # `gaussian_weights` only returns the gaussian weights in the indices are provided
+    gw_kdtree   = gkr.gaussian_weights(xpos, ypos, npix, ind_kdtree)
+    
+    # gaussian_kernel_regression computes the prediction for the GKR over the flux
+    gkr_kdtree = gkr.gaussian_kernel_regression(flux, gw_kdtree, ind_kdtree)
     
     fig1, ax1 = plt.subplots(1,1)
     ax1.plot(flux , '.', ms=1, alpha=0.5)
