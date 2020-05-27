@@ -126,9 +126,9 @@ def gaussian_weights(xpos, ypos, npix = None, inds = None, n_nbr = 50, returnInd
         return np.array(gw_list)
 
 def gaussian_kernel_regression(residuals, gaussian_weights, indices):
-    ''' Compute the GKR `flux` values over time
+    ''' Compute the GKR `residuals` values over time
         
-        This produces the comparison to the actual flux data, to be used iterative with a least-sq or MCMC solver
+        This produces the comparison to the actual residuals data, to be used iterative with a least-sq or MCMC solver
         
         Paramaeters
         -----------
@@ -140,7 +140,7 @@ def gaussian_kernel_regression(residuals, gaussian_weights, indices):
         -------
         prediction (1Darray) Gaussian kernel regression prediction for the value of the source over time
     '''
-    return np.sum(flux[ind_kdtree] * gaussian_weights, axis=1)
+    return np.sum(residuals[ind_kdtree] * gaussian_weights, axis=1)
 
 if __name__ == '__main__':
     import numpy as np
@@ -151,7 +151,7 @@ if __name__ == '__main__':
     xpos = 0.35*np.sin(np.arange(0, nPts) / 1500 + 0.5) + 15 + np.random.normal(0, 0.2, nPts)
     ypos = 0.35*np.sin(np.arange(0, nPts) / 2000 + 0.7) + 15 + np.random.normal(0, 0.2, nPts)
     npix = 0.25*np.sin(np.arange(0, nPts) / 2500 + 0.4) + 15 + np.random.normal(0, 0.2, nPts)
-    flux = 1+0.01*(xpos - xpos.mean()) + 0.01*(ypos - ypos.mean()) + 0.01*(npix - npix.mean())
+    residuals = 1 + 0.01*(xpos - xpos.mean()) + 0.01*(ypos - ypos.mean()) + 0.01*(npix - npix.mean())
     
     n_nbr  = 50
     points = np.transpose([xpos, ypos, npix])
@@ -162,14 +162,14 @@ if __name__ == '__main__':
     # `gaussian_weights` only returns the gaussian weights in the indices are provided
     gw_kdtree   = gkr.gaussian_weights(xpos, ypos, npix, ind_kdtree)
     
-    # gaussian_kernel_regression computes the prediction for the GKR over the flux
-    gkr_kdtree = gkr.gaussian_kernel_regression(flux, gw_kdtree, ind_kdtree)
+    # gaussian_kernel_regression computes the prediction for the GKR over the residuals
+    gkr_kdtree = gkr.gaussian_kernel_regression(residuals, gw_kdtree, ind_kdtree)
     
     fig1, ax1 = plt.subplots(1,1)
-    ax1.plot(flux , '.', ms=1, alpha=0.5)
+    ax1.plot(residuals , '.', ms=1, alpha=0.5)
     ax1.plot(gkr_kdtree , '.', ms=1, alpha=0.5)
     
     fig2, ax2 = plt.subplots(1,1)
-    ax2.plot(flux - gkr_kdtree , '.', ms=1, alpha=0.5)
+    ax2.plot(residuals - gkr_kdtree , '.', ms=1, alpha=0.5)
     ax2.set_title('Scipy.cKDTree Gaussian Kernel Regression')
     ax2.set_ylim(-0.0005,0.0005)
