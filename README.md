@@ -4,12 +4,26 @@ This is a stand alone code that trains a 3D Gaussian kernel regression over the 
 
 To implement in your own code, place the `gaussian_kernel_regression_3D.py` file in your working directory and run the `gaussian_weights_and_nearest_neighbors` function.
 
-Here is an example:
+# Installation 
+```bash
+git clone https://github.com/exowanderer/GaussianKernelRegression
+cd GaussianKernelRegression
+python setup.py install
+```
+
+### Or
+
+```bash
+python3 -m pip install git+https://github.com/exowanderer/GaussianKernelRegression
+```
+
+# Example
 
 ### Create synthetic data
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
+from gaussian_kernel_regression import gaussian_kernel_regression as gkr
 
 nPts = int(1e5)
 
@@ -32,8 +46,8 @@ kdtree  = cKDTree(points)  # trained KDtree
 ind_kdtree  = kdtree.query(kdtree.data, n_nbr+1)[1][:,1:] # skip the first one because it's the current point
 
 # Produce GKR weights over time
-# `gaussian_weights_and_nearest_neighbors` only returns the gaussian weights in the indices are provided
-gw_kdtree   = gaussian_weights_and_nearest_neighbors(xpos, ypos, npix, ind_kdtree)
+# `gaussian_kernel_regression` (i.e. `gkr`) only returns the gaussian weights in the indices are provided
+gw_kdtree   = gkr(xpos, ypos, npix, ind_kdtree)
 gkr_kdtree  = sum(flux[ind_kdtree] * gw_kdtree, axis=1)
 ```
 
