@@ -17,7 +17,7 @@ python setup.py install
 python3 -m pip install git+https://github.com/exowanderer/GaussianKernelRegression
 ```
 
-# Example
+# Example (run of [Colab](https://colab.research.google.com/drive/16SdCh9GDUEL6ghFe6TBWIZdAF0dkvFC-?usp=sharing))
 
 ### Create synthetic data
 ```python
