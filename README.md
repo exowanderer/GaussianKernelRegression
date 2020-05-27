@@ -23,20 +23,22 @@ python3 -m pip install git+https://github.com/exowanderer/GaussianKernelRegressi
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
+
+from scipy.spatial import cKDTree
 from gaussian_kernel_regression import gaussian_kernel_regression as gkr
 
 nPts = int(1e5)
 
-xpos = 0.35*sin(np.arange(0,nPts) / 1500 + 0.5) + 15 + np.random.normal(0,0.2,nPts)
-ypos = 0.35*sin(np.arange(0,nPts) / 2000 + 0.7) + 15 + np.random.normal(0,0.2,nPts)
-npix = 0.25*sin(np.arange(0,nPts) / 2500 + 0.4) + 15 + np.random.normal(0,0.2,nPts)
+xpos = 0.35*np.sin(np.arange(0,nPts) / 1500 + 0.5) + 15 + np.random.normal(0,0.2,nPts)
+ypos = 0.35*np.sin(np.arange(0,nPts) / 2000 + 0.7) + 15 + np.random.normal(0,0.2,nPts)
+npix = 0.25*np.sin(np.arange(0,nPts) / 2500 + 0.4) + 15 + np.random.normal(0,0.2,nPts)
 flux = 1+0.01*(xpos - xpos.mean()) + 0.01*(ypos - ypos.mean()) + 0.01*(npix - npix.mean())
 ```
 
 ### Train KDTree
 ```python
 n_nbr   = 50  # Number of data points to sample inside cKDTree
-points  = transpose([xpos,ypos,npix])  # set of coordinates to train cKDTree
+points  = np.transpose([xpos,ypos,npix])  # set of coordinates to train cKDTree
 kdtree  = cKDTree(points)  # trained KDtree
 ```
 
