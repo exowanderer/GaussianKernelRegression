@@ -49,7 +49,7 @@ ind_kdtree  = kdtree.query(kdtree.data, n_nbr+1)[1][:,1:] # skip the first one b
 
 # Produce GKR weights over time
 # `gaussian_kernel_regression` (i.e. `gkr`) only returns the gaussian weights in the indices are provided
-gw_kdtree   = gkr(xpos, ypos, npix, ind_kdtree)
+gw_kdtree   = gkr.gaussian_weights(xpos, ypos, npix, ind_kdtree)
 gkr_kdtree  = sum(flux[ind_kdtree] * gw_kdtree, axis=1)
 ```
 
@@ -57,8 +57,8 @@ gkr_kdtree  = sum(flux[ind_kdtree] * gw_kdtree, axis=1)
 ```python
 # Plot solution
 fig1, ax1 = plt.subplots(1,1)
-ax1.plot(flux        , '.', ms=1, alpha=0.5)
-ax1.plot(gkr_kdtree  , '.', ms=1, alpha=0.5)
+ax1.plot(flux, '.', ms=1, alpha=0.5)
+ax1.plot(gkr_kdtree, '.', ms=1, alpha=0.5)
 
 fig2, ax2 = plt.subplots(1,1)
 ax2.plot(flux - gkr_kdtree  , '.', ms=1, alpha=0.5)
