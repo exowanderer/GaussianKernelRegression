@@ -1,1 +1,1 @@
-from gaussian_kernel_regression import *
+from .gaussian_kernel_regression import *
