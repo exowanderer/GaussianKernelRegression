@@ -108,7 +108,7 @@ def gaussian_weights(xpos, ypos, npix = None, inds = None, n_nbr = 50, return_in
     func = partial(find_qhull_one_point, x0=x0, y0=y0, np0=np0, inds=inds)
     
     if ncores > 1:
-        raise Exception('Check to make sure that Multiprocessing is working correctly -- examine the Activity Monitor.')
+        print('Computing weights with Pool; no status update will be presented')
         pool = Pool(ncores)
         
         gw_list = pool.starmap(func, zip(range(n)))
