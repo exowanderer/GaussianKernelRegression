@@ -80,36 +80,36 @@ def gaussian_weights(xpos, ypos, npix = None, inds = None, n_nbr = 50, returnInd
         inds (list): List of lists for indices `near` each point (from `cKDTree`) over time
     '''
     
-    #The surface fitting performs better if the data is scattered about zero
-    x0  = (xpos - median(xpos))/a
-    y0  = (ypos - median(ypos))/b
+    # The surface fitting performs better if the data is scattered about zero
+    x0  = (xpos - np.median(xpos))/a
+    y0  = (ypos - np.median(ypos))/b
     
     if npix is not None and bool(c):
-        np0 = sqrt(npix)
-        np0 = (np0 - median(np0))/c
-        features  = transpose((y0, x0, np0))
+        np0 = np.sqrt(npix)
+        np0 = (np0 - np.median(np0))/c
+        features  = np.transpose((y0, x0, np0))
     else:
-        features  = transpose((y0, x0))
+        features  = np.transpose((y0, x0))
         
-        if sum(np0) == 0.0:
+        if np.sum(np0) == 0.0:
             print('SKIPPING Noise Pixel Sections of Gaussian Kernel because Noise Pixels are Zero')
         if c == 0:
             print('SKIPPING Noise Pixel Sections of Gaussian Kernel because c == 0')
     
     if inds is None:
-        kdtree    = cKDTree(features * expansion) #Multiplying `features` by 1000.0 avoids precision problems
-        inds      = kdtree.query(kdtree.data, n_nbr+1)[1][:,1:]
+        kdtree = cKDTree(features * expansion)  # Multiplying `features` by 1000.0 avoids precision problems
+        inds = kdtree.query(kdtree.data, n_nbr+1)[1][:,1:]
         
         print('WARNING: Because `inds` was not provided, we must now compute and return it here')
         returnInds= True
     
-    n, k   = inds.shape                           # This is the number of nearest neighbors you want
+    n, k = inds.shape  # This is the number of nearest neighbors you want
     
-    func  = partial(find_qhull_one_point, x0=x0, y0=y0, np0=np0, inds=inds)
+    func = partial(find_qhull_one_point, x0=x0, y0=y0, np0=np0, inds=inds)
     
     if nCores > 1:
         raise Exception('Check to make sure that Multiprocessing is working correctly -- examine the Activity Monitor.')
-        pool  = Pool(nCores)
+        pool = Pool(nCores)
         
         gw_list = pool.starmap(func, zip(range(n)))
         
@@ -117,7 +117,7 @@ def gaussian_weights(xpos, ypos, npix = None, inds = None, n_nbr = 50, returnInd
         pool.join()
     else:
         gw_list = []
-        for idx in tqdm(range(n),total=n):
+        for idx in tqdm(range(n), total=n):
             gw_list.append(func(idx))
     
     if returnInds:
