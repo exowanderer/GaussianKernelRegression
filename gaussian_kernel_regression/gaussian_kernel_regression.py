@@ -42,8 +42,8 @@ def find_qhull_one_point(point, x0, y0, np0, inds):
     
     return gw_temp / gw_temp.sum()
 
-def gaussian_weights(xpos, ypos, npix = None, inds = None, n_nbr = 50, returnInds=False,
-                      a = 1.0, b = 0.7, c = 1.0, expansion = 1000., nCores=1):
+def gaussian_weights(xpos, ypos, npix = None, inds = None, n_nbr = 50, return_inds=False,
+                      a = 1.0, b = 0.7, c = 1.0, expansion = 1000., ncores=1):
     '''
         Python Implimentation of N. Lewis method, described in Lewis etal 2012, Knutson etal 2012, Fraine etal 2013
         
@@ -67,12 +67,12 @@ def gaussian_weights(xpos, ypos, npix = None, inds = None, n_nbr = 50, returnInd
         npix (1dArray): PSF width of source over time (Defaut: None)
         inds (list): List of lists of indices 'near' each source over time (Defaut: None)
         n_nbr (int): Number of points to be considered by cKDTree (Defaut: 50)
-        returnInds (bool): Toggle whether to return the cKDTree indices; could speed up future use (Defaut: False)
+        return_inds (bool): Toggle whether to return the cKDTree indices; could speed up future use (Defaut: False)
         a (float): Exponential scale under x-distances in qhull (Defaut: 1.0)
         b (float): Exponential scale under y-distances in qhull (Defaut: 0.7)
         c (float): Exponential scale under 'width-distances' in qhull (Defaut: 1.0)
         expansion (float): Scale factor to avoid loss of significance (Defaut: 1000)
-        nCores (int): Number of cores to use with `multiprocessing.Pool` (Defaut: 1)
+        ncores (int): Number of cores to use with `multiprocessing.Pool` (Defaut: 1)
         
         Returns
         -------
