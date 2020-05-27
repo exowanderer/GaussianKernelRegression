@@ -1,11 +1,11 @@
-from functools         import partial
+from functools import partial
 
-from multiprocessing   import Pool, cpu_count
-from numpy             import loadtxt, array, sqrt, median, sum, zeros, int64, transpose, float64, std, exp, isfinite, arange, sin
+from multiprocessing import Pool, cpu_count
+from numpy import loadtxt, array, sqrt, median, sum, zeros, int64, transpose, float64, std, exp, isfinite, arange, sin
 
-from scipy.spatial     import cKDTree
+from scipy.spatial import cKDTree
 
-from tqdm              import tqdm
+from tqdm import tqdm
 
 def find_qhull_one_point(point, x0, y0, np0, inds):
     ''' Compute the exponentially weighted distance to each point, as compared to its neighbors
