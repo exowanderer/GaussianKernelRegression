@@ -101,7 +101,7 @@ def gaussian_weights(xpos, ypos, npix = None, inds = None, n_nbr = 50, return_in
         inds = kdtree.query(kdtree.data, n_nbr+1)[1][:,1:]
         
         print('WARNING: Because `inds` was not provided, we must now compute and return it here')
-        returnInds= True
+        return_inds= True
     
     n, k = inds.shape  # This is the number of nearest neighbors you want
     
@@ -120,7 +120,7 @@ def gaussian_weights(xpos, ypos, npix = None, inds = None, n_nbr = 50, return_in
         for idx in tqdm(range(n), total=n):
             gw_list.append(func(idx))
     
-    if returnInds:
+    if return_inds:
         return np.array(gw_list), inds
     else:
         return np.array(gw_list)
