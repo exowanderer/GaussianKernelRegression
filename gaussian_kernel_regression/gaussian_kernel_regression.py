@@ -45,7 +45,7 @@ def find_qhull_one_point(point, x0, y0, np0, inds):
     
     return gw_temp / gw_temp.sum()
 
-def gaussian_weights_and_nearest_neighbors(xpos, ypos, npix = None, inds = None, n_nbr = 50, returnInds=False,
+def gaussian_weights(xpos, ypos, npix = None, inds = None, n_nbr = 50, returnInds=False,
                       a = 1.0, b = 0.7, c = 1.0, expansion = 1000., nCores=1):
     '''
         Python Implimentation of N. Lewis method, described in Lewis etal 2012, Knutson etal 2012, Fraine etal 2013
