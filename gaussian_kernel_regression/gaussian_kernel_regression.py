@@ -1,10 +1,7 @@
+import numpy as np
 from functools import partial
-
 from multiprocessing import Pool, cpu_count
-from numpy import loadtxt, array, sqrt, median, sum, zeros, int64, transpose, float64, std, exp, isfinite, arange, sin
-
 from scipy.spatial import cKDTree
-
 from tqdm import tqdm
 
 def find_qhull_one_point(point, x0, y0, np0, inds):
@@ -26,20 +23,20 @@ def find_qhull_one_point(point, x0, y0, np0, inds):
         gw_temp (float) Gaussian weighted summation of qhull volume (i.e. 'weight') of source per frame
     '''
     
-    dx  = x0[inds[point]] - x0[point]
-    dy  = y0[inds[point]] - y0[point]
+    dx = x0[inds[point]] - x0[point]
+    dy = y0[inds[point]] - y0[point]
     
     if np0.sum() != 0.0:
-        dnp         = np0[inds[point]] - np0[point]
+        dnp = np0[inds[point]] - np0[point]
     
-    sigx  = std(dx )
-    sigy  = std(dy )
+    sigx = std(dx)
+    sigy = std(dy)
     
     if dnp.sum() != 0.0:
-        signp     = std(dnp)
-        exponent  = -dx**2./(2.0*sigx**2.) + -dy**2./(2.*sigy**2.) + -dnp**2./(2.*signp**2.)
+        signp = std(dnp)
+        exponent = -dx**2./(2.0*sigx**2.) + -dy**2./(2.*sigy**2.) + -dnp**2./(2.*signp**2.)
     else:
-        exponent  = -dx**2./(2.0*sigx**2.) + -dy**2./(2.*sigy**2.)
+        exponent = -dx**2./(2.0*sigx**2.) + -dy**2./(2.*sigy**2.)
     
     gw_temp = exp(exponent)
     
@@ -129,33 +126,31 @@ def gaussian_weights(xpos, ypos, npix = None, inds = None, n_nbr = 50, returnInd
         return array(gw_list)
 
 if __name__ == '__main__':
-    nPts = int(1e5)
-    
     import numpy as np
     import matplotlib.pyplot as plt
     
-    xpos = 0.35*sin(np.arange(0,nPts) / 1500 + 0.5) + 15 + np.random.normal(0,0.2,nPts)
-    ypos = 0.35*sin(np.arange(0,nPts) / 2000 + 0.7) + 15 + np.random.normal(0,0.2,nPts)
-    npix = 0.25*sin(np.arange(0,nPts) / 2500 + 0.4) + 15 + np.random.normal(0,0.2,nPts)
+    nPts = int(1e5)
+    
+    xpos = 0.35*np.sin(np.arange(0, nPts) / 1500 + 0.5) + 15 + np.random.normal(0, 0.2, nPts)
+    ypos = 0.35*np.sin(np.arange(0, nPts) / 2000 + 0.7) + 15 + np.random.normal(0, 0.2, nPts)
+    npix = 0.25*np.sin(np.arange(0, nPts) / 2500 + 0.4) + 15 + np.random.normal(0, 0.2, nPts)
     flux = 1+0.01*(xpos - xpos.mean()) + 0.01*(ypos - ypos.mean()) + 0.01*(npix - npix.mean())
     
-    n_nbr   = 50
-    points  = transpose([xpos,ypos,npix])
-    kdtree  = cKDTree(points)
+    n_nbr  = 50
+    points = np.transpose([xpos, ypos, npix])
+    kdtree = cKDTree(points)
     
-    ind_kdtree  = kdtree.query(kdtree.data, n_nbr+1)[1][:,1:] # skip the first one because it's the current point
+    ind_kdtree = kdtree.query(kdtree.data, n_nbr + 1)[1][:, 1:] # skip the first one because it's the current point
     
     # `gaussian_weights_and_nearest_neighbors` only returns the gaussian weights in the indices are provided
-    gw_kdtree   = gaussian_weights_and_nearest_neighbors(xpos   , ypos   , npix   , ind_kdtree  )
-    gkr_kdtree  = sum(flux[ind_kdtree]  * gw_kdtree, axis=1)
+    gw_kdtree = gaussian_weights_and_nearest_neighbors(xpos, ypos, npix, ind_kdtree)
+    gkr_kdtree = np.sum(flux[ind_kdtree] * gw_kdtree, axis=1)
     
     fig1, ax1 = plt.subplots(1,1)
-    ax1.plot(flux        , '.', ms=1, alpha=0.5)
-    ax1.plot(gkr_kdtree  , '.', ms=1, alpha=0.5)
+    ax1.plot(flux , '.', ms=1, alpha=0.5)
+    ax1.plot(gkr_kdtree , '.', ms=1, alpha=0.5)
     
     fig2, ax2 = plt.subplots(1,1)
-    ax2.plot(flux - gkr_kdtree  , '.', ms=1, alpha=0.5)
-    
+    ax2.plot(flux - gkr_kdtree , '.', ms=1, alpha=0.5)
     ax2.set_title('Scipy.cKDTree Gaussian Kernel Regression')
-    
     ax2.set_ylim(-0.0005,0.0005)
