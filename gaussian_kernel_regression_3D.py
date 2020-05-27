@@ -7,7 +7,25 @@ from scipy.spatial     import cKDTree
 
 from tqdm              import tqdm
 
-def find_qhull_one_point(point, x0, y0, np0, inds, kdtree=None):
+def find_qhull_one_point(point, x0, y0, np0, inds):
+    ''' Compute the exponentially weighted distance to each point, as compared to its neighbors
+        
+        This produces the weighting function for significance in the Gaussian kernel regression.
+        Allowing the GKR to scale to very large data sets by prioritizing the data points 'near' the source point
+        
+        Paramaeters
+        -----------
+        point (int): index of source point within: x0, y0, np0, inds
+        x0 (1dArray): x-positions of source over time
+        y0 (1dArray): y-positions of source over time
+        np0 (1dArray): PSF width of source over time ('beta pixels')
+        inds (list): list of data points `near` to source point, nominally determined by kdtree
+        
+        Returns
+        -------
+        gw_temp (float) Gaussian weighted summation of qhull volume (i.e. 'weight') of source per frame
+    '''
+    
     dx  = x0[inds[point]] - x0[point]
     dy  = y0[inds[point]] - y0[point]
     
@@ -44,7 +62,27 @@ def gaussian_weights_and_nearest_neighbors(xpos, ypos, npix = None, inds = None,
         
         Python Version:
             J. Fraine    first edition, direct translation from IDL 12.05.12
+            
+        Paramaeters
+        -----------
+        xpos (1Darray): x-positions of source over time
+        ypos (1Darray): y-positions of source over time
+        npix (1dArray): PSF width of source over time (Defaut: None)
+        inds (list): List of lists of indices 'near' each source over time (Defaut: None)
+        n_nbr (int): Number of points to be considered by cKDTree (Defaut: 50)
+        returnInds (bool): Toggle whether to return the cKDTree indices; could speed up future use (Defaut: False)
+        a (float): Exponential scale under x-distances in qhull (Defaut: 1.0)
+        b (float): Exponential scale under y-distances in qhull (Defaut: 0.7)
+        c (float): Exponential scale under 'width-distances' in qhull (Defaut: 1.0)
+        expansion (float): Scale factor to avoid loss of significance (Defaut: 1000)
+        nCores (int): Number of cores to use with `multiprocessing.Pool` (Defaut: 1)
+        
+        Returns
+        -------
+        gw_list (1Darry): Gaussian weighted summations of qhull volume (i.e. 'weights') over source over time
+        inds (list): List of lists for indices `near` each point (from `cKDTree`) over time
     '''
+    
     #The surface fitting performs better if the data is scattered about zero
     x0  = (xpos - median(xpos))/a
     y0  = (ypos - median(ypos))/b
