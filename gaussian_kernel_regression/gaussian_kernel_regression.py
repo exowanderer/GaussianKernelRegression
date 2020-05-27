@@ -121,9 +121,9 @@ def gaussian_weights(xpos, ypos, npix = None, inds = None, n_nbr = 50, returnInd
             gw_list.append(func(idx))
     
     if returnInds:
-        return array(gw_list), inds
+        return np.array(gw_list), inds
     else:
-        return array(gw_list)
+        return np.array(gw_list)
 
 if __name__ == '__main__':
     import numpy as np
